@@ -1,0 +1,113 @@
+/*
+ * 最大团问题 - 分支限界法
+ * ---------------------------
+ * 问题描述：同第5.7节。求无向图的最大完全子图（团）。
+ *
+ * 算法思想（分支限界法 — 优先队列式）：
+ *   每个节点代表一个部分团（已选了某些顶点）。
+ *   优先队列按团的潜在大小（上界）降序排列。
+ *   上界 = 当前团大小 + 候选顶点数（可能再加入的最多顶点）
+ *   每次取上界最大的节点扩展。
+ *
+ * 时间复杂度：最坏 O(n·2ⁿ)，通过限界减少
+ *
+ * 算法来源：《计算机算法设计与分析(第5版)》第6.6节
+ */
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include "../encoding_fix.h"
+using namespace std;
+
+int n;
+vector<vector<bool>> adj;
+vector<int> bestClique;
+int bestSize = 0;
+
+struct BBNode {
+    vector<int> clique;     // 当前团（顶点集）
+    vector<int> candidates; // 候选顶点（与团中所有顶点相邻）
+    int bound;              // 上界（当前大小 + 候选数）
+
+    BBNode(const vector<int>& c, const vector<int>& cand)
+        : clique(c), candidates(cand), bound(c.size() + cand.size()) {}
+
+    bool operator<(const BBNode& other) const {
+        return bound < other.bound;  // 最大优先队列
+    }
+};
+
+void MaxClique_BB() {
+    priority_queue<BBNode> pq;
+
+    vector<int> allVertices;
+    for (int i = 0; i < n; i++) allVertices.push_back(i);
+    reverse(allVertices.begin(), allVertices.end());
+
+    pq.push(BBNode({}, allVertices));
+
+    while (!pq.empty()) {
+        BBNode cur = pq.top(); pq.pop();
+
+        // 记录最优解
+        if (cur.clique.size() > bestSize) {
+            bestSize = cur.clique.size();
+            bestClique = cur.clique;
+        }
+
+        // 限界剪枝
+        if (cur.bound <= bestSize) continue;
+
+        if (cur.candidates.empty()) continue;
+
+        while (!cur.candidates.empty()) {
+            int v = cur.candidates.back();
+            cur.candidates.pop_back();
+
+            // 加入 v 扩展团
+            vector<int> newClique = cur.clique;
+            newClique.push_back(v);
+
+            // 新候选集 = v 的邻居 ∩ 原候选集
+            vector<int> newCandidates;
+            for (int u : cur.candidates) {
+                if (adj[v][u]) {
+                    newCandidates.push_back(u);
+                }
+            }
+
+            if (newClique.size() + newCandidates.size() > bestSize) {
+                pq.push(BBNode(newClique, newCandidates));
+            }
+        }
+    }
+}
+
+int main() {
+    cout << "=== 最大团问题 (分支限界法) ===" << endl;
+
+    n = 5;
+    adj.assign(n, vector<bool>(n, false));
+    vector<pair<int,int>> edges = {{0,1},{0,2},{0,3},{1,2},{1,3},{2,3},{2,4},{3,4}};
+    for (auto [u, v] : edges)
+        adj[u][v] = adj[v][u] = true;
+
+    cout << "图的邻接矩阵:" << endl;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++)
+            cout << adj[i][j] << " ";
+        cout << endl;
+    }
+
+    MaxClique_BB();
+
+    cout << "\n最大团大小: " << bestSize << endl;
+    cout << "最大团顶点: ";
+    sort(bestClique.begin(), bestClique.end());
+    for (int v : bestClique) cout << v << " ";
+    cout << endl;
+
+    return 0;
+}
