@@ -1,0 +1,41 @@
+// 7.1 有重复数字的有序数组二分查找（下界）
+// 输入：n（≤1e6），x；接着 n 个非降序整数
+// 输出：数组中第一个 >= x 的位置（1 开始）；若不存在输出 n+1
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+	int n;
+	int x;
+	if (scanf("%d %d", &n, &x) != 2) {
+		return 0;
+	}
+
+	int *a = (int *)malloc(sizeof(int) * (size_t)n);
+	if (!a) return 0;
+
+	for (int i = 0; i < n; ++i) {
+		if (scanf("%d", &a[i]) != 1) {
+			free(a);
+			return 0;
+		}
+	}
+
+	int left = 0, right = n; // 在 [0, n) 上找第一个 >= x 的下标
+	while (left < right) {
+		int mid = left + (right - left) / 2;
+		if (a[mid] >= x) {
+			right = mid;
+		} else {
+			left = mid + 1;
+		}
+	}
+
+	int pos = (left == n) ? (n + 1) : (left + 1); // 题目要求 1 基址
+	printf("%d\n", pos);
+
+	free(a);
+	return 0;
+}
+
