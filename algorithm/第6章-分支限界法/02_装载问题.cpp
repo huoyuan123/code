@@ -12,6 +12,17 @@
  *
  * 时间复杂度：最坏 O(2ⁿ)，通过限界剪枝减少
  *
+ *
+ * 【阅读指引 / 易错点】
+ *   - 与回溯法区别：回溯通常深搜逐个生成儿子；分支限界往往用队列/优先队列，一次性生成儿子并按界排序扩展。
+ *   - 活节点：节点里一般要保存当前层 i、当前装载量/剩余容量，以及用于估计的上界（bound）。
+ *   - 易错点：界函数要和目标一致（最大化装载量或最小化剩余）；界过松会导致搜索爆炸。
+ *
+ * 【实现提示】
+ *   - 活节点表：用优先队列按 bound 从大到小扩展，优先探索更有希望的节点。
+ *   - 界函数：必须是“上界”（乐观估计），否则可能错剪最优解。
+ *   - 状态拷贝：节点中 x/curW/level 要独立保存，避免相互影响。
+ *
  * 算法来源：《计算机算法设计与分析(第5版)》第6.3节
  */
 
@@ -22,16 +33,17 @@
 #include "../encoding_fix.h"
 using namespace std;
 
+// 变量说明：n = 集装箱数量；c1 = 第一艘船载重；w = 集装箱重量列表；bestW = 当前最优装载重量；bestX = 最优方案（哪些集装箱装入）
 int n, c1;
 vector<int> w;
 int bestW = 0;
 vector<bool> bestX;
-
+// 节点结构：level = 当前层级（已考虑的集装箱数）；curW = 当前装载重量；bound = 上界；x = 当前部分解（哪些集装箱装入）
 struct BBNode {
     int level;          // 当前层级（已考虑的集装箱数）
     int curW;           // 当前装载重量
-    double bound;       // 上界（优先队列排序依据）
-    vector<bool> x;     // 当前部分解
+    double bound;       // 上界（优先队列排序依据）,上界是当前重量 + 剩余可装重量
+    vector<bool> x;     // 当前部分解，x[i] = true 表示集装箱 i 已装入
 
     BBNode(int l, int cw, double b, const vector<bool>& sol)
         : level(l), curW(cw), bound(b), x(sol) {}
