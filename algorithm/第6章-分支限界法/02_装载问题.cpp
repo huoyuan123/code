@@ -74,7 +74,8 @@ void MaxLoading() {
     vector<bool> initX(n, false);
     double bound = CalcBound(0, 0, totalW);
     pq.push(BBNode(0, 0, bound, initX));
-
+    //bound 初始为所有集装箱重量总和，表示最乐观的上界
+    // initX 全 false，表示初始状态没有装任何集装箱
     while (!pq.empty()) {
         BBNode cur = pq.top(); pq.pop();
 
