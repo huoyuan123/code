@@ -19,6 +19,10 @@
  *   - 构造规律：左上角递归求出后，其余三个象限通过“复制 + 偏移 half”得到，是典型的分治构造题。
  *
  * 算法来源：《计算机算法设计与分析(第5版)》第2.11节
+
+ *
+ * 解空间树：递归树（日程分治递归树）
+ * 递归方式：深度优先搜索(DFS)
  */
 
 #include <iostream>
@@ -85,14 +89,14 @@ int main() {
     cout << "\n循环赛日程表 (行=选手, 列=第几天):" << endl << endl;
 
     cout << setw(6) << "选手";
-    for (int j = 0; j < n - 1; j++) {
-        cout << setw(4) << "D" + to_string(j + 1);
+    for (int j = 1; j < n; j++) {
+        cout << setw(4) << "D" + to_string(j);
     }
     cout << endl;
 
     for (int i = 0; i < n; i++) {
         cout << setw(6) << (i + 1);
-        for (int j = 0; j < n - 1; j++) {
+        for (int j = 1; j < n; j++) {
             cout << setw(4) << table[i][j];
         }
         cout << endl;

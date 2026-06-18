@@ -18,12 +18,14 @@
  * 算法来源：《计算机算法设计与分析(第5版)》第3.4节
  */
 
+ /*
  * 空间复杂度：O(1)
  *
  * 【阅读指引 / 易错点】
  *   - 常见 DP 定义：bestEndHere 表示“以当前位置结尾的最大子段和”，bestSoFar 表示全局最大。
  *   - 转移直觉：要么把当前位置接在之前的最优后面，要么从当前位置重新开始（比较 a[i] 与 bestEndHere+a[i]）。
  *   - 边界：若全为负数，答案是“最大的那个负数”；初始化时不要把 bestSoFar 直接设为 0。
+ */
 #include <iostream>
 #include <vector>
 #include <climits>

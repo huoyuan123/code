@@ -54,7 +54,8 @@ int MonteCarloMajority(const vector<int>& arr, int samples) {
     uniform_int_distribution<int> dist(0, n - 1);
 
     // 随机采样，统计各元素出现频率
-    vector<int> freq(1001, 0);  // 假设元素值 ≤ 1000
+    int maxElem = *max_element(arr.begin(), arr.end());
+    vector<int> freq(maxElem + 1, 0);
     for (int s = 0; s < samples; s++) {
         int idx = dist(rng);
         freq[arr[idx]]++;
@@ -62,7 +63,7 @@ int MonteCarloMajority(const vector<int>& arr, int samples) {
 
     // 看采样中哪个元素占多数
     int threshold = samples / 2;
-    for (int val = 0; val <= 1000; val++) {
+    for (int val = 0; val <= maxElem; val++) {
         if (freq[val] > threshold) {
             return val;           // 很可能就是主元素
         }
@@ -95,8 +96,8 @@ bool FermatPrimalityTest(long long n, int k = 10) {
         long long result = 1;
         base %= mod;
         while (exp > 0) {
-            if (exp & 1) result = (result * base) % mod;
-            base = (base * base) % mod;
+            if (exp & 1) result = (long long)((__int128)result * base % mod);
+            base = (long long)((__int128)base * base % mod);
             exp >>= 1;
         }
         return result;

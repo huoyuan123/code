@@ -34,12 +34,14 @@
  * 算法来源：《计算机算法设计与分析(第5版)》第3.6节
  */
 
+/*
  * 空间复杂度：O(n²)
  *
  * 【阅读指引 / 易错点】
- *   - 这是典型“区间 DP + min/max 同时维护”的题：因为运算符可能让最小值与最大值相互转化（尤其含减法/乘法时）。
+ *   - 这是典型”区间 DP + min/max 同时维护”的题：因为运算符可能让最小值与最大值相互转化（尤其含减法/乘法时）。
  *   - 状态常见写法：minDp[i][j]/maxDp[i][j] 表示区间 [i,j] 可得到的最小/最大值；转移枚举断点 k。
  *   - 环状多边形：若题目是环，需要把序列复制一遍或枚举起点；注意下标取模与区间长度。
+ */
 #include <iostream>
 #include <vector>
 #include <climits>
@@ -82,7 +84,7 @@ int PolygonGame(const vector<int>& v, const vector<char>& op) {
                 int d = dpM[j][len-s-1];       // 右侧最大
 
                 vector<int> candidates;
-                if (op[j] == 't') {
+                if (op[(i + s - 1) % n] == 't') {
                     // 加法
                     candidates = {a + c, a + d, b + c, b + d};
                 } else {

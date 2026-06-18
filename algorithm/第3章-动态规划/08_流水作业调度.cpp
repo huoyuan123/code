@@ -17,12 +17,14 @@
  * 算法来源：《计算机算法设计与分析(第5版)》第3.9节
  */
 
+/*
  * 空间复杂度：O(n)
  *
  * 【阅读指引 / 易错点】
- *   - 调度类题的核心是“状态/排序规则/代价计算”：先确认目标函数（如最小完工时间 makespan）。
+ *   - 调度类题的核心是”状态/排序规则/代价计算”：先确认目标函数（如最小完工时间 makespan）。
  *   - 若实现采用 DP：要注意状态规模是否会爆炸；常见做法是用排序/构造降低为多项式。
  *   - 结果验证：建议同时打印每台机器的完工时间序列，能快速定位代价计算是否写错。
+ */
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -40,15 +42,18 @@ struct Job {
  * 将作业分为两类：a < b（归 N₁），a ≥ b（归 N₂）
  */
 bool JohnsonCmp(const Job& x, const Job& y) {
-    // 用 min(a, b) 进行分类和排序
-    int tx = min(x.a, x.b);
-    int ty = min(y.a, y.b);
+    // 按 Johnson 法则分类：N₁ (a < b) 排在 N₂ (a >= b) 前面
+    bool xN1 = (x.a < x.b);
+    bool yN1 = (y.a < y.b);
 
-    if (tx != ty) return tx < ty;
+    // 不同类：N₁ 全部排在 N₂ 前面
+    if (xN1 != yN1) return xN1;
 
-    // min 相同时，将 M₁ 较短的排在前面
-    if (x.a != y.a) return x.a < y.a;
-    return x.b > y.b;
+    // 同一类内排序：N₁ 按 a 升序，N₂ 按 b 降序
+    if (xN1)
+        return x.a < y.a;       // N₁: a 升序
+    else
+        return x.b > y.b;       // N₂: b 降序
 }
 
 /**

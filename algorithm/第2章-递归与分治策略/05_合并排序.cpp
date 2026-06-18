@@ -18,6 +18,10 @@
  *   - 空间开销：需要辅助数组 b 暂存合并结果；这是归并排序换取稳定性与 O(n log n) 的代价。
  *
  * 算法来源：《计算机算法设计与分析(第5版)》第2.7节
+
+ *
+ * 解空间树：递归树（归并排序递归树）
+ * 递归方式：深度优先搜索(DFS)
  */
 
 #include <iostream>
@@ -68,7 +72,7 @@ void MergeSort(vector<int>& a, vector<int>& b, int left, int right) {
 
     int mid = left + (right - left) / 2;  // 防溢出
 
-    // 对左半部分排序（注意：a 和 b 角色互换，避免反复复制）
+    // 对左半部分排序
     MergeSort(a, b, left, mid);
     // 对右半部分排序
     MergeSort(a, b, mid + 1, right);

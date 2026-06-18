@@ -24,6 +24,25 @@
  *   - 状态撤销：回溯时要弹出顶点，避免影响兄弟分支。
  *
  * 算法来源：《计算机算法设计与分析(第5版)》第5.7节
+
+ *
+ * 解空间树：子集树（Subset Tree）
+ * 递归方式：深度优先搜索(DFS)
+
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * 【约束函数 vs 限界函数 — 区别说明】
+ * ═══════════════════════════════════════════════════════════════
+ * 约束函数 (Constraint)：检查部分解是否满足问题的硬性约束条件。
+ *   不满足 → 立即剪枝（该分支不可能产生可行解，继续搜无意义）。
+ *   例：装载重量≦容量、皇后是否冲突、顶点颜色是否冲突。
+ *
+ * 限界函数 (Bounding)：估算部分解可能达到的最优目标值。
+ *   不可能优于当前最优 → 剪枝（该子树不可能有更优解）。
+ *   例：当前重量+剩余≦bestW、价值上界≦bestValue、curDist≧best。
+ *
+ * 简单记法：约束 = "能不能"（可行性）， 限界 = "值不值"（最优性）。
+ * ═══════════════════════════════════════════════════════════════
  */
 
 #include <iostream>
@@ -53,7 +72,7 @@ void Backtrack(vector<int>& candidates) {
     }
 
     // 剪枝：即使把所有候选都加入也不如最优
-    if (curClique.size() + candidates.size() <= bestSize) return;
+    if (curClique.size() + candidates.size() <= bestSize) return;  // [限界函数] 最大可能团也不如最优，剪枝
 
     while (!candidates.empty()) {
         int v = candidates.back();
@@ -65,7 +84,7 @@ void Backtrack(vector<int>& candidates) {
         // 更新候选集为 v 的邻居与原候选集的交集
         vector<int> newCandidates;
         for (int u : candidates) {
-            if (adj[v][u]) {
+            if (adj[v][u]) {  // [约束函数] 候选顶点必须与团内所有顶点相邻
                 newCandidates.push_back(u);
             }
         }

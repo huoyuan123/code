@@ -19,6 +19,10 @@
  *   - 小规模优化：当区间元素较少时直接排序取第 k 小，减少常数开销（阈值可按需要调整）。
  *
  * 算法来源：《计算机算法设计与分析(第5版)》第2.9节
+
+ *
+ * 解空间树：递归树（选择算法递归树）
+ * 递归方式：深度优先搜索(DFS)
  */
 
 #include <iostream>
@@ -74,7 +78,7 @@ int Select(vector<int>& a, int left, int right, int k) {
     }
 
     // 步骤1-3：找中位数的中位数
-    for (int i = 0; i <= (right - left - 4) / 5; i++) {
+    for (int i = 0; i <= (right - left) / 5; i++) {
         // 每组 5 个元素排序，取中位数放到前面
         int subLeft = left + i * 5;
         int subRight = min(subLeft + 4, right);

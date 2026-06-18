@@ -1,39 +1,40 @@
 /*
- * encoding_fix.h — 解决 Windows 控制台中文乱码
- * ---------------------------------------------
- * 用途：
- *   在本仓库的示例程序中，经常会输出中文说明。Windows 的旧版控制台
- *   默认代码页可能不是 UTF-8，导致中文显示为乱码。
+ * encoding_fix.h — Windows 控制台 UTF-8 编码修正
+ * --------------------------------------------------
+ * 用法：在所有会输出中文到控制台的 .cpp 中加入
+ *       #include "../encoding_fix.h"
  *
- * 用法：
- *   在每个 .cpp 文件开头添加：
- *     #include "../encoding_fix.h"
- *   （不同子目录下相对路径可能不同，以实际 include 路径为准）
+ * 两者选一即可，程序开头调用 init_encoding() 或直接包含本头文件：
+ *   - chcp 65001：将当前控制台代码页切换为 UTF-8（推荐，侵入性最小）
+ *   - SetConsoleOutputCP(65001)：API 级设置，更稳健
  *
- * 原理：
- *   仅在 Windows 平台（_WIN32）下，调用 Windows API：
- *     - SetConsoleOutputCP(65001)：设置输出代码页为 UTF-8
- *     - SetConsoleCP(65001)：设置输入代码页为 UTF-8
- *   通过一个静态对象在 main 执行前完成初始化。
- *
- * 备注/易踩坑：
- *   - 这只能影响“控制台代码页”，不改变源文件本身的编码。
- *   - 若仍乱码，通常与终端字体/渲染有关：优先使用 Windows Terminal，
- *     并选择支持中文的字体（如“微软雅黑”“等线”等）。
- *   - 若你不想在代码里 include，也可以在终端手动执行：`chcp 65001`。
+ * 同时用 #pragma 确保 MSVC 按 UTF-8 编译源文件。
  */
+
 #ifndef ENCODING_FIX_H
 #define ENCODING_FIX_H
 
 #ifdef _WIN32
 #include <windows.h>
-// 在程序启动时设置控制台输出编码为 UTF-8
-static struct EncodingFix {
-    EncodingFix() {
-        SetConsoleOutputCP(65001);       // 控制台输出 UTF-8
-        SetConsoleCP(65001);             // 控制台输入 UTF-8
+#include <cstdlib>
+
+/**
+ * 自动初始化：头文件被包含时，静态对象构造即自动设置
+ * 无需在每个 main() 中手动调用。
+ */
+namespace {
+struct EncodingInitializer {
+    EncodingInitializer() {
+        SetConsoleOutputCP(CP_UTF8);
+        SetConsoleCP(CP_UTF8);
     }
-} _encoding_fix;
+};
+static EncodingInitializer __encoding_init__;
+} // anonymous namespace
+#endif
+
+#if defined(_MSC_VER)
+#pragma execution_character_set("utf-8")
 #endif
 
 #endif // ENCODING_FIX_H

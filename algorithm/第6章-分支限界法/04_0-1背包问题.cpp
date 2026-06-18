@@ -26,6 +26,21 @@
  *   - 状态拷贝：子节点的 x/curW/curV 要独立保存，避免共享引用。
  *
  * 算法来源：《计算机算法设计与分析(第5版)》第6.5节
+
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * 【约束函数 vs 限界函数 — 区别说明】
+ * ═══════════════════════════════════════════════════════════════
+ * 约束函数 (Constraint)：检查部分解是否满足问题的硬性约束条件。
+ *   不满足 → 立即剪枝（该分支不可能产生可行解，继续搜无意义）。
+ *   例：装载重量≦容量、皇后是否冲突、顶点颜色是否冲突。
+ *
+ * 限界函数 (Bounding)：估算部分解可能达到的最优目标值。
+ *   不可能优于当前最优 → 剪枝（该子树不可能有更优解）。
+ *   例：当前重量+剩余≦bestW、价值上界≦bestValue、curDist≧best。
+ *
+ * 简单记法：约束 = "能不能"（可行性）， 限界 = "值不值"（最优性）。
+ * ═══════════════════════════════════════════════════════════════
  */
 
 #include <iostream>
@@ -66,7 +81,7 @@ struct BBNode {
  * 计算当前状态的价值上界（贪心 + 部分物品）
  */
 double CalcBound(int level, int curW, int curV) {
-    if (curW >= C) return 0;
+    if (curW >= C) return curV;
 
     double bound = curV;
     int remaining = C - curW;
@@ -109,15 +124,15 @@ void Knapsack_BB() {
         }
 
         // 限界剪枝
-        if (cur.bound <= bestValue) continue;
+        if (cur.bound <= bestValue) continue;  // [限界函数] 价值上界不优于最优，剪枝
 
         // 扩展左儿子：装入物品 i
-        if (cur.curW + items[i].weight <= C) {
+        if (cur.curW + items[i].weight <= C) {  // [约束函数] 检查装入后是否超重
             vector<bool> leftX = cur.x;
             leftX[i] = true;
             double leftBound = CalcBound(i + 1, cur.curW + items[i].weight,
                                          cur.curV + items[i].value);
-            if (leftBound > bestValue) {
+            if (leftBound > bestValue) {  // [限界函数] 左儿子上界优于最优才入队
                 pq.push(BBNode(i + 1, cur.curW + items[i].weight,
                                cur.curV + items[i].value, leftBound, leftX));
             }
